@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import requests
 import json
 import random
@@ -7,7 +6,6 @@ import os
 import time
 import subprocess
 from colorama import Fore, Back, Style
-from utils import *
 import calendar
 import time
 
@@ -38,23 +36,28 @@ def message(message):
     print(Fore.LIGHTCYAN_EX + "-> " + Fore.RESET + message)
 
 send_count = 1
-reply_rate = 10
+reply_rate = 7
 texts = []
 tokens = []
 channels = []
 
 def main():
-    print(Fore.LIGHTBLACK_EX + "  0. Exit")
+    print(Fore.LIGHTBLACK_EX + "\n  0. Exit")
     print(Fore.CYAN + "  1. Message")
     print(Fore.CYAN + "  2. Invite")
     try:
         operation = int(input(Fore.RESET + "\n  Select an option: "))
         if(operation == 0):
             message("Good bye")
+            input("")
         elif(operation == 1):
-            message("\n ")
+            try: sleep_time = int(input("\nEnter sleep time between two message: \n"))
+            except:
+                error("Entered value must contain numbers only.")
+            warn("For stop, press X")
+            loop_message(sleep_time)
     except:
-        error("Wrong option.\n\n", False)
+        error("\nExited.\n\n", False)
         main()
 
 def loop_message(sleep_time):
@@ -62,6 +65,7 @@ def loop_message(sleep_time):
     get_texts()
     get_tokens()
     get_channels()
+    return_count = 0
     while True:
         time.sleep(sleep_time)
         for token in tokens:
@@ -85,7 +89,10 @@ def loop_message(sleep_time):
                         True,
                         selected_message["id"]
                     )
-            send_count+=1
+            if return_count != len(tokens)-1: return_count+=1
+            else:
+                return_count=0
+                send_count+=1
 
 def reply(token, channel_id):
     headers = {
@@ -183,8 +190,4 @@ if __name__ == "__main__":
         validate_token(get_token())
 
     if TOKEN_VALIDATED:
-        try: sleep_time = int(input("\nEnter sleep time between two message: \n"))
-        except:
-            error("Entered value must contain numbers only.")
-        warn("For stop, press X")
-        loop_message(sleep_time)
+        main()
